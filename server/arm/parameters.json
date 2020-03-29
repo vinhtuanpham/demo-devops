@@ -1,0 +1,27 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "name": {
+            "value": "_name"
+        },
+        "dockerRegistryUrl": {
+            "value": "https://index.docker.io"
+        },
+        "hostingPlanName": {
+            "value": "sharedappservice"
+        },
+        "hostingEnvironment": {
+            "value": ""
+        },
+        "location": {
+            "value": "eastus"
+        },
+        "serverFarmResourceGroup": {
+            "value": "shared"
+        },
+        "subscriptionId": {
+            "value": "66e0dc82-30b0-4039-ba52-e16f79ec3d1b"
+        }
+    }
+}
