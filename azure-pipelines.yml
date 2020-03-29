@@ -1,0 +1,84 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+- develop
+- release/*
+pr:
+  branches:
+    include:
+    - master
+    - develop
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- checkout: self
+  persistCredentials: true
+
+- script: echo Hello, world!
+  displayName: 'Run a one-line script'
+
+- script: |
+    echo Add other tasks to build, test, and deploy your project.
+    echo See https://aka.ms/yaml
+    ls
+  displayName: 'Run a multi-line script'
+
+- task: Npm@1
+  displayName: npm install
+  inputs:
+    command: 'install'
+    workingDir: 'server/'
+- task: Npm@1
+  displayName: Vulnerability Scan
+  inputs:
+    command: 'custom'
+    customCommand: 'audit'
+    workingDir: 'server/'
+- task: Npm@1
+  displayName: npm test
+  inputs:
+      command: 'custom'
+      customCommand: 'test'
+      workingDir: 'server/'
+      
+- task: PublishTestResults@2
+  inputs:
+    testResultsFormat: 'VSTest'
+    testResultsFiles: '**/src/*.trx'
+    failTaskOnFailedTests: true
+- script: |
+    rm -rf azure/func/node_modules
+    rm -rf azure/func/src
+  displayName: 'npm clean'
+
+- task: CopyFiles@2
+  displayName: 'Copy Files to: Staging Artifact'
+  inputs:
+    SourceFolder: ./
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+    OverWrite: true
+     
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
+
+- script: |
+    git config --global user.email "vinhpt90@outlook.com"
+    git config --global user.name "vinhpham"
+    git fetch origin
+    git checkout -b $(System.PullRequest.SourceBranch) origin/$(System.PullRequest.SourceBranch)
+    git merge $(System.PullRequest.TargetBranch)
+    git checkout $(System.PullRequest.TargetBranch)
+    git merge --no-ff $(System.PullRequest.SourceBranch)
+    git push origin $(System.PullRequest.TargetBranch)
+  displayName: 'Merge Pull Request'
+  condition: and(always(), eq(variables['Build.Reason'], 'PullRequest'))
