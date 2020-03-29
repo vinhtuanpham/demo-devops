@@ -31,10 +31,10 @@ steps:
 - task: CopyFiles@2
   displayName: 'Copy Files to: Staging Artifact'
   inputs:
-    SourceFolder: ./
+    SourceFolder: ./server
     TargetFolder: '$(Build.ArtifactStagingDirectory)'
     OverWrite: true
-    
+
 - task: Npm@1
   displayName: npm install
   inputs:
